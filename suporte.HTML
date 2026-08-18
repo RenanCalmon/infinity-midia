@@ -186,7 +186,17 @@
         const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
         function mudarTela(telaAlvo) {
-            if(telaAlvo === 'cadastro-empresa') { window.location.href = "03 - CADASTRO2.0.HTML"; return; }
+            if (telaAlvo === 'cadastro-empresa') {
+                window.location.href = "index.html";
+            } else if (telaAlvo === 'empresa-a') {
+                window.location.href = "menu.html";
+            } else if (telaAlvo === 'produtos-imagens') {
+                window.location.href = "produto.html";
+            } else if (telaAlvo === 'banco-infinity') {
+                window.location.href = "dados.html";
+            } else if (telaAlvo === 'central-suporte') {
+                window.location.href = "suporte.html";
+            }
         }
 
         // ================= AÇÕES DO SUPORTE (COM SALVAMENTO NA NUVEM) =================

@@ -334,10 +334,17 @@
         }
 
         function mudarTela(telaAlvo) {
-            const telas = ['empresa-a', 'produtos-imagens', 'cadastro-empresa', 'banco-infinity', 'config-empresa', 'controle-acessos', 'central-suporte'];
-            telas.forEach(t => { const el = document.getElementById(`tela-${t}`); if (el) el.classList.add('hidden'); });
-            const alvo = document.getElementById(`tela-${telaAlvo}`);
-            if (alvo) alvo.classList.remove('hidden');
+            if (telaAlvo === 'cadastro-empresa') {
+                window.location.href = "index.html";
+            } else if (telaAlvo === 'empresa-a') {
+                window.location.href = "menu.html";
+            } else if (telaAlvo === 'produtos-imagens') {
+                window.location.href = "produto.html";
+            } else if (telaAlvo === 'banco-infinity') {
+                window.location.href = "dados.html";
+            } else if (telaAlvo === 'central-suporte') {
+                window.location.href = "suporte.html";
+            }
         }
 
         // ================= LISTAR EMPRESAS DO SUPABASE =================

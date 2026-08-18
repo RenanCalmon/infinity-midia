@@ -66,28 +66,52 @@
         
         <!-- SIDEBAR -->
         <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-20 text-white shrink-0">
-            <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
-                <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
-                    IM
+            <div>
+                <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+                    <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
+                        IM
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
+                        <p class="text-[11px] text-slate-400 uppercase tracking-wider">Gestão Corporativa</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
-                    <p class="text-[11px] text-slate-400 uppercase tracking-wider">Gestão Corporativa</p>
-                </div>
+                
+                <nav class="p-4 space-y-1.5 overflow-y-auto">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2 px-4">📺 Menu de Gestão</div>
+                    <button onclick="mudarTela('empresa-a')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-white bg-slate-800 transition font-medium text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-building text-blue-400 w-4 text-center"></i> Gestão de Telas
+                    </button>
+
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">📦 Cadastro da Loja</div>
+                    <button onclick="mudarTela('produtos-imagens')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-box-open text-slate-400 w-4 text-center"></i> Produtos & Imagens
+                    </button>
+
+                    <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">⚙️ Configuração</div>
+                    <button onclick="mudarTela('cadastro-empresa')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-users-gear text-slate-400 w-4 text-center"></i> Cadastro de Clientes
+                    </button>
+                    <button onclick="mudarTela('banco-infinity')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-database text-slate-400 w-4 text-center"></i> Banco Global Master
+                    </button>
+                    <button onclick="mudarTela('central-suporte')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                        <i class="fa-solid fa-headset text-slate-400 w-4 text-center"></i> Central de Suporte
+                    </button>
+                </nav>
             </div>
             
-            <nav class="flex-grow p-4 space-y-1.5 overflow-y-auto">
-                <div>
-                    <div class="w-full flex items-center gap-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2 px-4">
-                        <span>📺</span> Menu de Gestão
+            <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">
+                        RB
                     </div>
-                    <div class="space-y-1 mt-1">
-                        <button class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold bg-blue-600 text-white transition-colors cursor-default shadow-sm">
-                            • Gestão de Telas
-                        </button>
+                    <div class="overflow-hidden">
+                        <p class="text-xs font-semibold text-slate-200 truncate">Renan Brumatti</p>
+                        <p class="text-[10px] text-slate-400 truncate">Admin Master</p>
                     </div>
                 </div>
-            </nav>
+            </div>
         </aside>
 
         <main class="flex-grow flex flex-col h-screen overflow-hidden relative">
@@ -344,7 +368,21 @@
         const supabaseKey = 'sb_publishable_8aOvUrsLvBlf9KIqsL2iyw_eqPn0_a1';
         const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        // Banco de produtos base (será integrado ao banco em breve)
+        // ================= NAVEGAÇÃO INTEGRADA =================
+        function mudarTela(telaAlvo) {
+            if (telaAlvo === 'cadastro-empresa') {
+                window.location.href = "index.html";
+            } else if (telaAlvo === 'empresa-a') {
+                window.location.href = "menu.html";
+            } else if (telaAlvo === 'produtos-imagens') {
+                window.location.href = "produto.html";
+            } else if (telaAlvo === 'banco-infinity') {
+                window.location.href = "dados.html";
+            } else if (telaAlvo === 'central-suporte') {
+                window.location.href = "suporte.html";
+            }
+        }
+
         let meusProdutos = [
             { codigoPDV: "101", nomeTXT: "PICANHA BOVINA", preco: "79,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
             { codigoPDV: "102", nomeTXT: "CONTRA FILÉ GRILL", preco: "45,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
@@ -460,10 +498,9 @@
             listaTV = listaTV.filter(id => !selTabela.includes(id)); selTabela = []; renderizarAdminTabela();
         }
 
-        // ================= SALVAR E SINCRONIZAR COM O SUPABASE =================
         async function salvarESincronizar() {
             const dadosConfig = {
-                id: 1, // ID fixo para a configuração da tela principal
+                id: 1,
                 lista_tv: listaTV,
                 lista_destaque: listaDestaque,
                 tema: configTv.temaTela1,
@@ -471,7 +508,6 @@
                 data_fim: document.getElementById('config-data-fim').value
             };
 
-            // Salva na tabela 'configuracao_telas' no Supabase
             const { error } = await dbSupabase
                 .from('configuracao_telas')
                 .upsert([dadosConfig]);
