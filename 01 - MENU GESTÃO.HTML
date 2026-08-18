@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Mídia - Gestão Corporativa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        infinity: {
+                            lightBg: '#f8fafc',
+                            cardBg: '#ffffff',
+                            primary: '#2563eb',
+                            border: '#e2e8f0',
+                            text: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        .compact-td { padding: 6px 12px !important; font-size: 0.75rem !important; }
+        .compact-th { padding: 10px 12px !important; font-size: 0.70rem !important; }
+
+        .accordion-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out; }
+        .accordion-content.open { grid-template-rows: 1fr; }
+        .accordion-inner { overflow: hidden; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ================= ESTILOS DA TV (Preservados Intactos) ================= */
+        .tv-screen { position: relative; width: 100vw; height: 100vh; background-size: 100% 100%; background-repeat: no-repeat; background-position: center; overflow: hidden; background-color: #111; }
+        .fade-anim { animation: fadeIn 1s ease-in-out forwards; }
+        @keyframes fadeIn { 0% { opacity: 0; transform: scale(0.96); } 100% { opacity: 1; transform: scale(1); } }
+        
+        .box-destaque { position: absolute; top: 24%; left: 2%; width: 31%; height: 68%; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: visible; }
+        .box-tabela { position: absolute; top: 24%; left: 36%; width: 61%; height: 71%; display: flex; flex-direction: column; padding: 0 2%; overflow: hidden; }
+        
+        .box-mosaico { position: absolute; top: 23%; left: 2.5%; width: 95%; height: 74%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .grade-produtos { display: grid; width: 100%; height: 100%; gap: 2vh 1.5vw; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- ======================================================= -->
+    <!-- PAINEL DE GESTÃO -->
+    <!-- ======================================================= -->
+    <div id="painel-gestao" class="flex h-screen w-screen overflow-hidden">
+        
+        <!-- SIDEBAR -->
+        <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-20 text-white shrink-0">
+            <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
+                    IM
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-wider">Gestão Corporativa</p>
+                </div>
+            </div>
+            
+            <nav class="flex-grow p-4 space-y-1.5 overflow-y-auto">
+                <div>
+                    <div class="w-full flex items-center gap-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2 px-4">
+                        <span>📺</span> Menu de Gestão
+                    </div>
+                    <div class="space-y-1 mt-1">
+                        <button class="w-full text-left px-4 py-3 rounded-xl text-xs font-semibold bg-blue-600 text-white transition-colors cursor-default shadow-sm">
+                            • Gestão de Telas
+                        </button>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="flex-grow flex flex-col h-screen overflow-hidden relative">
+            <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10 shadow-sm shrink-0">
+                <div class="flex flex-col">
+                    <h2 class="text-lg font-bold text-slate-900 tracking-wide">Gestão de Telas (Playlists)</h2>
+                    <p class="text-xs text-slate-500 mt-0.5">Configure o visual e os produtos de cada monitor da loja (Sincronizado com o Supabase).</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right border-r border-slate-200 pr-4">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ambiente Nuvem</p>
+                        <p class="text-xs font-bold text-emerald-600">CONECTADO</p>
+                    </div>
+                    <button onclick="alternarModoExibicao()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2">
+                        <span>🖥️</span> Simular TV
+                    </button>
+                    <button onclick="salvarESincronizar()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition-colors flex items-center gap-2">
+                        <span><i class="fa-solid fa-floppy-disk"></i></span> Salvar Tudo
+                    </button>
+                </div>
+            </header>
+
+            <div class="flex-grow overflow-y-auto p-6 relative">
+                <div class="w-full space-y-4 pb-12">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-all">
+                        
+                        <div class="bg-slate-800 hover:bg-slate-900 transition-colors p-3.5 flex items-center justify-between select-none group rounded-t-xl">
+                            <div class="flex items-center gap-3 flex-grow cursor-pointer" onclick="toggleAccordion('tela1')">
+                                <div class="w-8 h-8 bg-slate-700 rounded-md flex items-center justify-center text-sm shadow-inner border border-slate-600">📺</div>
+                                <div id="display-nome-tela1" class="flex items-center gap-3">
+                                    <h3 id="texto-nome-tela1" class="text-sm font-bold text-white tracking-wide uppercase">TELA 1 - AÇOUGUE PRINCIPAL</h3>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 cursor-pointer" onclick="toggleAccordion('tela1')">
+                                <span class="text-[10px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded border border-emerald-400/20"><i class="fa-solid fa-circle text-[8px] mr-1"></i> Ativa</span>
+                                <span id="seta-tela1" class="text-slate-400 text-xs transform transition-transform duration-300 rotate-180">▼</span>
+                            </div>
+                        </div>
+
+                        <div id="body-tela1" class="accordion-content open bg-slate-50">
+                            <div class="accordion-inner p-5 border-t border-slate-200">
+                                
+                                <!-- PALETA VISUAL -->
+                                <div class="flex flex-wrap lg:flex-nowrap gap-6 mb-5 pb-5 border-b border-slate-200 bg-white p-4 rounded-lg shadow-sm border">
+                                    <div class="w-full lg:w-1/2">
+                                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-palette text-blue-500 mr-1"></i> Paleta Visual</h4>
+                                        <div class="flex gap-3">
+                                            <div onclick="selecionarTema('tema1', 'MOSAICO_VERMELHO.jpg', 'IMAGEM_PADRAO.jpg')" id="tela1-card-tema1" class="w-36 shrink-0 rounded-lg border-2 border-blue-500 shadow-sm cursor-pointer relative bg-slate-50 p-2 text-center transition-colors">
+                                                <p class="text-[11px] font-bold text-blue-800">Vermelho (Padrão)</p>
+                                                <div id="tela1-selo-tema1" class="absolute -top-1.5 -right-1.5 bg-blue-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-black text-[8px] shadow-sm">✓</div>
+                                            </div>
+                                            <div onclick="selecionarTema('tema2', 'MOISACO_VERDE.jpg', 'IMAGEM_PADRAO2.jpg')" id="tela1-card-tema2" class="w-36 shrink-0 rounded-lg border border-slate-300 cursor-pointer relative bg-white p-2 text-center transition-colors hover:bg-slate-50">
+                                                <p class="text-[11px] font-semibold text-slate-600">Amadeirado</p>
+                                                <div id="tela1-selo-tema2" class="hidden absolute -top-1.5 -right-1.5 bg-blue-600 text-white w-4 h-4 rounded-full flex items-center justify-center font-black text-[8px] shadow-sm">✓</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full lg:w-1/2 border-l lg:pl-6 border-slate-200">
+                                        <h4 class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-ruler-combined text-blue-500 mr-1"></i> Estrutura da Tela</h4>
+                                        <div class="flex gap-3">
+                                            <label class="flex-1 cursor-pointer">
+                                                <input type="radio" name="tipo_layout" value="destaque_lista" checked onchange="mudarEstruturaLayout()" class="peer hidden">
+                                                <div class="border border-slate-300 peer-checked:border-blue-500 peer-checked:bg-blue-50 peer-checked:text-blue-800 text-slate-500 rounded-lg px-3 py-2 text-xs font-semibold text-center transition-colors shadow-sm">
+                                                    Destaque + Tabela
+                                                </div>
+                                            </label>
+                                            <label class="flex-1 cursor-pointer">
+                                                <input type="radio" name="tipo_layout" value="grade" onchange="mudarEstruturaLayout()" class="peer hidden">
+                                                <div class="border border-slate-300 peer-checked:border-indigo-500 peer-checked:bg-indigo-50 peer-checked:text-indigo-800 text-slate-500 rounded-lg px-3 py-2 text-xs font-semibold text-center transition-colors shadow-sm">
+                                                    Grade Mosaico
+                                                </div>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- DESTAQUE + TABELA -->
+                                <div id="container-destaque-lista" class="block">
+                                    <div class="flex flex-wrap items-end justify-between gap-4 mb-4 pb-4 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                        <div class="flex items-center gap-4">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Validade (Rodapé)</label>
+                                                <div class="flex items-center gap-2">
+                                                    <input type="date" id="config-data-inicio" class="px-2 py-1 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 outline-none focus:border-blue-500">
+                                                    <span class="text-slate-400 text-[10px] font-bold">ATÉ</span>
+                                                    <input type="date" id="config-data-fim" class="px-2 py-1 border border-slate-300 rounded-md text-xs font-semibold text-slate-700 outline-none focus:border-blue-500">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 px-2 py-1 border border-slate-200 rounded-md shadow-sm hover:bg-slate-100 transition-colors">
+                                                <input type="checkbox" id="config-mostrar-promo" checked class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-0">
+                                                <span class="text-[11px] font-bold text-slate-700">Banner Promoção</span>
+                                            </label>
+                                            <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 px-2 py-1 border border-slate-200 rounded-md shadow-sm hover:bg-slate-100 transition-colors">
+                                                <input type="checkbox" id="config-mostrar-unidade" checked class="w-3.5 h-3.5 text-blue-600 rounded border-slate-300 focus:ring-0">
+                                                <span class="text-[11px] font-bold text-slate-700">Exibir KG/UN</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- ABAS -->
+                                    <div class="flex mt-4">
+                                        <button id="tab-btn-destaque" onclick="switchTabTela1('destaque')" class="px-6 py-2.5 bg-white border-t border-l border-r border-slate-200 rounded-t-lg font-bold text-blue-600 z-10 relative -mb-[1px] shadow-sm text-xs transition-all flex items-center gap-2">
+                                            <i class="fa-solid fa-star"></i> Área de Destaque
+                                        </button>
+                                        <button id="tab-btn-tabela" onclick="switchTabTela1('tabela')" class="px-6 py-2.5 bg-slate-100 border-t border-l border-r border-b border-slate-200 rounded-t-lg font-semibold text-slate-500 hover:bg-slate-50 relative -mb-[1px] text-xs transition-all flex items-center gap-2">
+                                            <i class="fa-solid fa-list"></i> Lista Principal
+                                        </button>
+                                    </div>
+
+                                    <div class="bg-white border border-slate-200 p-5 rounded-b-lg rounded-tr-lg shadow-sm min-h-[400px] flex flex-col relative z-0">
+                                        
+                                        <!-- ABA 1: DESTAQUES -->
+                                        <div id="tab-panel-destaque" class="block flex-grow flex flex-col">
+                                            <div class="flex items-center justify-between mb-4">
+                                                <div>
+                                                    <h3 class="text-sm font-bold text-slate-800">Produtos em Evidência</h3>
+                                                    <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Lado Esquerdo da TV</p>
+                                                </div>
+                                                <div class="bg-slate-50 p-1.5 rounded-lg border border-slate-200 flex gap-3">
+                                                    <label class="flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded hover:bg-slate-100 transition-colors">
+                                                        <input type="radio" name="modo_destaque" value="personalizado" checked onchange="toggleModoDestaque()" class="w-3.5 h-3.5 text-blue-600 focus:ring-0">
+                                                        <span class="text-xs font-bold text-blue-800">Lista Própria</span>
+                                                    </label>
+                                                    <label class="flex items-center gap-1.5 cursor-pointer px-2 py-1 rounded hover:bg-slate-100 transition-colors">
+                                                        <input type="radio" name="modo_destaque" value="todos" onchange="toggleModoDestaque()" class="w-3.5 h-3.5 text-slate-500 focus:ring-0">
+                                                        <span class="text-xs font-semibold text-slate-600">Carrossel <span class="text-[9px] text-slate-400">(Auto)</span></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div id="painel-destaque-personalizado" class="flex-grow flex flex-col transition-opacity">
+                                                <div class="relative mb-3">
+                                                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                                    </span>
+                                                    <input type="text" id="busca-destaque" placeholder="Buscar produtos para Destaque..." onfocus="filtrarBuscaDestaque()" onkeyup="filtrarBuscaDestaque()" class="w-full p-2.5 pl-9 border border-slate-300 rounded-lg text-xs font-semibold bg-slate-50 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                                    <div id="drop-destaque" class="absolute w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 hidden max-h-60 overflow-y-auto divide-y divide-slate-100"></div>
+                                                </div>
+
+                                                <div class="border border-slate-200 rounded-lg flex-grow overflow-hidden flex flex-col bg-white">
+                                                    <div class="bg-slate-50 px-3 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider border-b border-slate-200 flex justify-between items-center">
+                                                        <span>Fila de Destaques Ativos</span>
+                                                        <span class="bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded-md" id="count-destaques">0</span>
+                                                    </div>
+                                                    <ul id="lista-destaques-ativos" class="flex-grow overflow-y-auto p-2 space-y-1.5"></ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- ABA 2: TABELA -->
+                                        <div id="tab-panel-tabela" class="hidden flex-grow flex flex-col">
+                                            <div class="mb-4">
+                                                <h3 class="text-sm font-bold text-slate-800">Grade de Ofertas</h3>
+                                                <p class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Tabela Direita (Paginada na TV)</p>
+                                            </div>
+
+                                            <div class="relative mb-3">
+                                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                                </span>
+                                                <input type="text" id="busca-tabela" placeholder="Buscar e adicionar à Tabela Principal..." onfocus="filtrarBuscaTabela()" onkeyup="filtrarBuscaTabela()" class="w-full p-2.5 pl-9 border border-slate-300 rounded-lg text-xs font-semibold bg-slate-50 outline-none focus:border-blue-500 focus:bg-white transition-colors cursor-pointer">
+                                                <div id="drop-tabela" class="absolute w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50 hidden max-h-60 overflow-y-auto divide-y divide-slate-100"></div>
+                                            </div>
+
+                                            <div class="border border-slate-200 rounded-lg overflow-hidden flex flex-col flex-grow">
+                                                <div id="action-bar-reproducao" class="bg-red-50 px-3 py-2 border-b border-red-100 flex justify-between items-center hidden">
+                                                    <span class="text-[11px] font-bold text-red-700"><span id="count-selecionados-tabela">0</span> selecionados</span>
+                                                    <button onclick="executarRemocao('tabela')" class="bg-white hover:bg-red-600 text-red-600 hover:text-white border border-red-200 hover:border-red-600 transition-colors text-[10px] font-bold uppercase px-3 py-1.5 rounded shadow-sm">Remover</button>
+                                                </div>
+
+                                                <div class="overflow-y-auto flex-grow bg-white relative">
+                                                    <table class="w-full text-left border-collapse">
+                                                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200">
+                                                            <tr class="text-slate-500 uppercase tracking-wider text-[10px] font-bold">
+                                                                <th class="py-2 px-3 text-center w-10"><input type="checkbox" id="chk-all-tabela" onchange="toggleSelectAll('tabela', this.checked)" class="w-3.5 h-3.5 cursor-pointer text-blue-600 border-slate-300 rounded focus:ring-0"></th>
+                                                                <th class="py-2 px-3 text-center w-16">PDV</th>
+                                                                <th class="py-2 px-3">Produto</th>
+                                                                <th class="py-2 px-3">Categoria</th>
+                                                                <th class="py-2 px-3 text-right">Preço</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="tbody-reproducao" class="divide-y divide-slate-100"></tbody>
+                                                    </table>
+                                                </div>
+                                                <div class="bg-slate-50 px-4 py-2.5 border-t border-slate-200 flex justify-between items-center">
+                                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Total na Grade:</span>
+                                                    <span class="text-sm font-black text-blue-700" id="count-total-tabela">0</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- GRADE MOSAICO -->
+                                <div id="container-grade" class="hidden">
+                                    <div class="flex flex-wrap items-center justify-between mb-4 pb-4 bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+                                        <div class="flex items-center gap-6">
+                                            <div>
+                                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Grade (Máx. 6)</label>
+                                                <select id="config-qtd-mosaico" class="p-1.5 border border-slate-300 rounded-md text-xs font-semibold text-slate-800 bg-white outline-none focus:border-blue-500 cursor-pointer">
+                                                    <option value="1">1 Produto (Cheia)</option>
+                                                    <option value="2">2 Produtos</option>
+                                                    <option value="3">3 Produtos</option>
+                                                    <option value="4">4 Produtos</option>
+                                                    <option value="5">5 Produtos</option>
+                                                    <option value="6" selected>6 Produtos (Padrão)</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- ======================================================= -->
+    <!-- TELA DA TV (EXIBIÇÃO EM TEMPO REAL) -->
+    <!-- ======================================================= -->
+    <div id="modo-tv" class="hidden fixed inset-0 z-50 bg-[#111] overflow-hidden">
+        <button onclick="alternarModoExibicao()" class="absolute top-4 left-4 bg-black/60 hover:bg-black text-white text-xs px-3 py-1.5 rounded-lg z-50 border border-white/20 shadow">
+            ⚙️ Sair da TV
+        </button>
+
+        <div class="tv-screen" id="tv-background">
+            <div id="layout-tela1" class="absolute inset-0 hidden">
+                <div class="box-destaque">
+                    <div id="tv-destaque-conteudo" style="display:flex; flex-direction:column; align-items:center; text-align:center; width:100%; height:100%; justify-content:space-between; color:white;"></div>
+                </div>
+                
+                <div id="tv-texto-promocional" style="position: absolute; bottom: 2%; left: 2%; width: 31%; text-align: center; color: #ffffff; font-size: 0.8vw; font-weight: 600; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);"></div>
+
+                <div class="box-tabela">
+                    <div style="text-align:center; height:10%; display:flex; align-items:center; justify-content:center;">
+                        <div id="tv-tabela-titulo" style="color:#fff; font-size:2.5vw; font-weight:900; text-transform:uppercase; letter-spacing: 2px;">CARREGANDO...</div>
+                    </div>
+                    <div style="flex-grow:1; padding-top:4vh; padding-bottom: 2vh;">
+                        <ul id="tv-tabela-lista" style="list-style:none; display:flex; flex-direction:column; justify-content:space-evenly; height:100%;"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= CONEXÃO SUPABASE =================
+        const supabaseUrl = 'https://sqotdkmjebicciatznsv.supabase.co';
+        const supabaseKey = 'sb_publishable_8aOvUrsLvBlf9KIqsL2iyw_eqPn0_a1';
+        const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        // Banco de produtos base (será integrado ao banco em breve)
+        let meusProdutos = [
+            { codigoPDV: "101", nomeTXT: "PICANHA BOVINA", preco: "79,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
+            { codigoPDV: "102", nomeTXT: "CONTRA FILÉ GRILL", preco: "45,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
+            { codigoPDV: "103", nomeTXT: "COSTELA MINGA", preco: "22,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
+            { codigoPDV: "104", nomeTXT: "ALCATRA COMPLETA", preco: "49,90", unidade: "KG", categoria: "Bovinos", imagem: "picanha.png" },
+            { codigoPDV: "201", nomeTXT: "COXA E SOBRECOXA", preco: "11,90", unidade: "KG", categoria: "Aves", imagem: "picanha.png" },
+            { codigoPDV: "301", nomeTXT: "LINGUIÇA TOSCANA", preco: "19,90", unidade: "KG", categoria: "Embutidos", imagem: "picanha.png" }
+        ];
+
+        let configTv = { layout: 'destaque_lista', temaTela1: 'IMAGEM_PADRAO.jpg', mostrarPromo: true, dataInicio: '', dataFim: '', modoDestaque: 'personalizado' };
+        let listaTV = ["101", "102", "103", "104", "201", "301"]; 
+        let listaDestaque = ["101", "102"]; 
+        let selTabela = []; 
+        let paginasTabela = []; 
+        let idxTabela = 0;
+        let listaDestaqueAtiva = []; 
+        let idxDestaque = 0; 
+        let loopTvIds = [];
+
+        function switchTabTela1(aba) {
+            const btnDestaque = document.getElementById('tab-btn-destaque');
+            const btnTabela = document.getElementById('tab-btn-tabela');
+            const panelDestaque = document.getElementById('tab-panel-destaque');
+            const panelTabela = document.getElementById('tab-panel-tabela');
+
+            const activeClass = "px-6 py-2.5 bg-white border-t border-l border-r border-slate-200 rounded-t-lg font-bold text-blue-600 z-10 relative -mb-[1px] shadow-sm text-xs transition-all flex items-center gap-2";
+            const inactiveClass = "px-6 py-2.5 bg-slate-100 border-t border-l border-r border-b border-slate-200 rounded-t-lg font-semibold text-slate-500 hover:bg-slate-50 relative -mb-[1px] text-xs transition-all flex items-center gap-2";
+
+            if (aba === 'destaque') {
+                btnDestaque.className = activeClass; btnTabela.className = inactiveClass;
+                panelDestaque.classList.remove('hidden'); panelTabela.classList.add('hidden');
+            } else {
+                btnTabela.className = activeClass; btnDestaque.className = inactiveClass;
+                panelTabela.classList.remove('hidden'); panelDestaque.classList.add('hidden');
+            }
+        }
+
+        function toggleAccordion(id) { 
+            document.getElementById(`body-${id}`).classList.toggle('open'); 
+            document.getElementById(`seta-${id}`).classList.toggle('rotate-180');
+        }
+        
+        function mudarEstruturaLayout() {
+            configTv.layout = document.querySelector('input[name="tipo_layout"]:checked').value;
+            document.getElementById('container-destaque-lista').classList.toggle('hidden', configTv.layout !== 'destaque_lista');
+            document.getElementById('container-grade').classList.toggle('hidden', configTv.layout !== 'grade');
+        }
+
+        function toggleModoDestaque() {
+            const radios = document.getElementsByName('modo_destaque');
+            for(let r of radios) { if(r.checked) configTv.modoDestaque = r.value; }
+            document.getElementById('painel-destaque-personalizado').classList.toggle('opacity-50', configTv.modoDestaque !== 'personalizado');
+        }
+
+        function selecionarTema(idDiv, temaMosaico, temaTela1) {
+            configTv.temaTela1 = temaTela1;
+            document.getElementById('tela1-card-tema1').className = temaTela1 === 'IMAGEM_PADRAO.jpg' ? "w-36 shrink-0 rounded-lg border-2 border-blue-500 shadow-sm cursor-pointer relative bg-slate-50 p-2 text-center transition-colors" : "w-36 shrink-0 rounded-lg border border-slate-300 cursor-pointer relative bg-white p-2 text-center transition-colors hover:bg-slate-50";
+            document.getElementById('tela1-selo-tema1').classList.toggle('hidden', temaTela1 !== 'IMAGEM_PADRAO.jpg');
+        }
+
+        function processarBusca(input_id, drop_id, lista_alvo, func_add, requerFoto = false) {
+            const termo = document.getElementById(input_id).value.toLowerCase();
+            const drop = document.getElementById(drop_id); drop.innerHTML = '';
+            
+            const filtrados = meusProdutos.filter(p => (!requerFoto || p.imagem) && (termo === '' || p.nomeTXT.toLowerCase().includes(termo) || p.codigoPDV.includes(termo)));
+            if(filtrados.length === 0) { drop.classList.add('hidden'); return; }
+
+            filtrados.forEach(p => {
+                const jaAdd = lista_alvo.includes(p.codigoPDV);
+                const btnHtml = jaAdd ? `<span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">✅ Adicionado</span>` : `<button onclick="${func_add}('${p.codigoPDV}')" class="bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold px-3 py-1.5 rounded transition-colors shadow-sm">Adicionar</button>`;
+                drop.innerHTML += `<div class="flex justify-between items-center p-3 hover:bg-slate-50 border-b border-slate-100 transition-colors"><div><p class="text-xs font-bold text-slate-800">${p.nomeTXT}</p><p class="text-[10px] text-slate-500 font-semibold">PDV: ${p.codigoPDV} • R$ ${p.preco}</p></div>${btnHtml}</div>`;
+            });
+            drop.classList.remove('hidden');
+        }
+
+        function filtrarBuscaDestaque() { processarBusca('busca-destaque', 'drop-destaque', listaDestaque, 'addDestaque', true); }
+        function filtrarBuscaTabela() { processarBusca('busca-tabela', 'drop-tabela', listaTV, 'addTabela'); }
+
+        function addDestaque(pdv) { if(!listaDestaque.includes(pdv)) { listaDestaque.push(pdv); renderizarAdminDestaque(); } filtrarBuscaDestaque(); }
+        function addTabela(pdv) { if(!listaTV.includes(pdv)) { listaTV.push(pdv); renderizarAdminTabela(); } filtrarBuscaTabela(); }
+        function remDestaque(pdv) { listaDestaque = listaDestaque.filter(id => id !== pdv); renderizarAdminDestaque(); }
+
+        function renderizarAdminDestaque() {
+            const ul = document.getElementById('lista-destaques-ativos'); ul.innerHTML = '';
+            listaDestaque.forEach(pdv => {
+                const p = meusProdutos.find(x => x.codigoPDV === pdv);
+                if(p) ul.innerHTML += `<li class="flex justify-between items-center p-2.5 bg-white border border-slate-200 rounded-lg shadow-sm"><div class="flex items-center gap-3 truncate"><span class="text-xs font-bold text-slate-800 uppercase">${p.nomeTXT}</span></div><button onclick="remDestaque('${p.codigoPDV}')" class="text-slate-400 hover:text-red-500 font-bold px-2 py-1.5 transition-colors text-[10px] uppercase tracking-wider"><i class="fa-solid fa-xmark"></i> Remover</button></li>`;
+            });
+            document.getElementById('count-destaques').innerText = listaDestaque.length;
+        }
+
+        function renderizarAdminTabela() {
+            const tbody = document.getElementById('tbody-reproducao'); tbody.innerHTML = '';
+            listaTV.forEach(pdv => {
+                const p = meusProdutos.find(x => x.codigoPDV === pdv);
+                if(p) {
+                    const chk = selTabela.includes(p.codigoPDV) ? 'checked' : '';
+                    tbody.innerHTML += `<tr class="hover:bg-slate-50 transition-colors border-b border-slate-100"><td class="py-2 px-3 text-center"><input type="checkbox" ${chk} onchange="toggleCheck('${p.codigoPDV}')" class="w-3.5 h-3.5 cursor-pointer text-blue-600 border-slate-300 rounded focus:ring-0"></td><td class="py-2 px-3 text-slate-500 text-center font-bold text-[11px]">${p.codigoPDV}</td><td class="py-2 px-3 font-semibold uppercase text-xs text-slate-800">${p.nomeTXT}</td><td class="py-2 px-3"><span class="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px] font-bold border border-slate-200 uppercase">${p.categoria}</span></td><td class="py-2 px-3 text-right font-bold text-blue-700 text-xs">R$ ${p.preco}</td></tr>`;
+                }
+            });
+            document.getElementById('count-total-tabela').innerText = listaTV.length;
+            document.getElementById('action-bar-reproducao').classList.toggle('hidden', selTabela.length === 0);
+            document.getElementById('count-selecionados-tabela').innerText = selTabela.length;
+        }
+
+        function toggleCheck(pdv) {
+            const idx = selTabela.indexOf(pdv);
+            if(idx > -1) selTabela.splice(idx, 1); else selTabela.push(pdv);
+            renderizarAdminTabela();
+        }
+
+        function executarRemocao() {
+            listaTV = listaTV.filter(id => !selTabela.includes(id)); selTabela = []; renderizarAdminTabela();
+        }
+
+        // ================= SALVAR E SINCRONIZAR COM O SUPABASE =================
+        async function salvarESincronizar() {
+            const dadosConfig = {
+                id: 1, // ID fixo para a configuração da tela principal
+                lista_tv: listaTV,
+                lista_destaque: listaDestaque,
+                tema: configTv.temaTela1,
+                data_inicio: document.getElementById('config-data-inicio').value,
+                data_fim: document.getElementById('config-data-fim').value
+            };
+
+            // Salva na tabela 'configuracao_telas' no Supabase
+            const { error } = await dbSupabase
+                .from('configuracao_telas')
+                .upsert([dadosConfig]);
+
+            if (error) {
+                console.error("Erro ao salvar no Supabase:", error);
+                return alert("Erro ao sincronizar com a nuvem: " + error.message);
+            }
+
+            alert("SUCESSO! Configurações da tela salvas e sincronizadas na nuvem.");
+        }
+
+        window.onload = function() {
+            renderizarAdminDestaque(); renderizarAdminTabela();
+            const hoje = new Date(); const semana = new Date(); semana.setDate(hoje.getDate() + 7);
+            document.getElementById('config-data-inicio').value = hoje.toISOString().split('T')[0];
+            document.getElementById('config-data-fim').value = semana.toISOString().split('T')[0];
+        };
+
+        function alternarModoExibicao() {
+            document.getElementById('painel-gestao').classList.toggle('hidden');
+            const tv = document.getElementById('modo-tv');
+            tv.classList.toggle('hidden');
+            
+            loopTvIds.forEach(id => clearInterval(id)); loopTvIds = [];
+
+            if(!tv.classList.contains('hidden')) {
+                configTv.mostrarPromo = document.getElementById('config-mostrar-promo').checked;
+                configTv.dataInicio = document.getElementById('config-data-inicio').value;
+                configTv.dataFim = document.getElementById('config-data-fim').value;
+                iniciarMotoresDaTV();
+            }
+        }
+
+        function formatarDataBR(dataIso) {
+            if(!dataIso) return '--/--/----';
+            const p = dataIso.split('-'); return `${p[2]}/${p[1]}/${p[0]}`;
+        }
+
+        function iniciarMotoresDaTV() {
+            const divPromo = document.getElementById('tv-texto-promocional');
+            if(configTv.mostrarPromo) {
+                divPromo.innerHTML = `Promoções válidas de ${formatarDataBR(configTv.dataInicio)} a ${formatarDataBR(configTv.dataFim)},<br>ou até durarem os estoques.`;
+                divPromo.style.display = 'block';
+            } else {
+                divPromo.style.display = 'none';
+            }
+
+            document.getElementById('tv-background').style.backgroundImage = `url('${configTv.temaTela1}')`;
+            document.getElementById('layout-tela1').classList.remove('hidden');
+            
+            listaDestaqueAtiva = [...listaDestaque];
+            idxDestaque = 0; desenharFrameDestaque();
+            if(listaDestaqueAtiva.length > 1) loopTvIds.push(setInterval(desenharFrameDestaque, 5000));
+
+            paginasTabela = []; const maxItens = 12;
+            const catUnicas = [...new Set(listaTV.map(id => meusProdutos.find(p=>p.codigoPDV===id).categoria))];
+            catUnicas.forEach(cat => {
+                const prodsDaCat = listaTV.map(id => meusProdutos.find(p=>p.codigoPDV===id)).filter(p => p.categoria === cat);
+                for (let i = 0; i < prodsDaCat.length; i += maxItens) paginasTabela.push({ categoria: cat, produtos: prodsDaCat.slice(i, i + maxItens) });
+            });
+            
+            idxTabela = 0; desenharFrameTabela();
+            if(paginasTabela.length > 1) loopTvIds.push(setInterval(desenharFrameTabela, 10000));
+        }
+
+        function desenharFrameDestaque() {
+            const container = document.getElementById('tv-destaque-conteudo');
+            if (listaDestaqueAtiva.length === 0) { container.innerHTML = '<div style="font-size:2vw; margin-top:20vh;">Sem Produtos para Destaque</div>'; return; }
+            
+            const p = meusProdutos.find(x => x.codigoPDV === listaDestaqueAtiva[idxDestaque]);
+            if(p) {
+                container.classList.remove('fade-anim'); void container.offsetWidth;
+                container.innerHTML = `
+                    <div style="width: 100%;">
+                        <div style="color:#ffffff; font-size:2vw; font-weight:800; text-transform:uppercase;">EM DESTAQUE</div>
+                        <div style="color:#ffffff; font-size:2.6vw; font-weight:900; margin-bottom:1vh; text-transform:uppercase;">${p.nomeTXT}</div>
+                    </div>
+                    <div style="flex-grow:1; display:flex; align-items:center; justify-content:center; width:100%;">
+                        <img src="${p.imagem}" style="max-width:95%; max-height:38vh; object-fit:contain;">
+                    </div>
+                    <div style="display:flex; align-items:baseline; justify-content:center; color:#facc15;">
+                        <span style="font-size:2.5vw; font-weight:900; margin-right:1vw;">R$</span>
+                        <span style="font-size:7vw; font-weight:900; line-height:0.8;">${p.preco}</span>
+                    </div>
+                `;
+                container.classList.add('fade-anim');
+            }
+            idxDestaque = (idxDestaque + 1) % listaDestaqueAtiva.length;
+        }
+
+        function desenharFrameTabela() {
+            if(paginasTabela.length === 0) return;
+            const pagina = paginasTabela[idxTabela];
+            document.getElementById('tv-tabela-titulo').innerText = pagina.categoria;
+            const ul = document.getElementById('tv-tabela-lista'); ul.innerHTML = '';
+            
+            pagina.produtos.forEach(p => {
+                ul.innerHTML += `
+                    <li style="display:flex; align-items:flex-end; width:100%;">
+                        <div style="color:#ffffff; font-size:1.8vw; font-weight:800; text-transform:uppercase; max-width:65%;">${p.nomeTXT}</div>
+                        <div style="flex-grow:1; border-bottom:0.3vw dotted rgba(255, 255, 255, 0.2); margin:0 1vw;"></div>
+                        <div style="color:#facc15; font-size:2.3vw; font-weight:900;"><span>R$</span>${p.preco}</div>
+                    </li>
+                `;
+            });
+            idxTabela = (idxTabela + 1) % paginasTabela.length;
+        }
+    </script>
+</body>
+</html>

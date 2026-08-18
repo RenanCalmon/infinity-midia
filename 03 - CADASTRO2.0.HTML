@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Mídia - Gestão Corporativa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        infinity: {
+                            lightBg: '#f8fafc',
+                            cardBg: '#ffffff',
+                            primary: '#2563eb',
+                            border: '#e2e8f0',
+                            text: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Acordeão */
+        .accordion-content { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.3s ease-out; }
+        .accordion-content.open { grid-template-rows: 1fr; }
+        .accordion-inner { overflow: hidden; }
+        
+        /* Esconder barra rolagem */
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .hide-scroll { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- MENU LATERAL -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-20 text-white shrink-0">
+        <div>
+            <!-- Logo / Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
+                    IM
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
+                    <p class="text-[11px] text-slate-400 uppercase tracking-wider">Gestão Corporativa</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5 overflow-y-auto">
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-2 px-4">📺 Menu de Gestão</div>
+                <button onclick="mudarTela('empresa-a')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-building text-slate-400 w-4 text-center"></i> Empresa A (Usuário)
+                </button>
+
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">📦 Cadastro da Loja</div>
+                <button onclick="mudarTela('produtos-imagens')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-box-open text-slate-400 w-4 text-center"></i> Produtos & Imagens
+                </button>
+
+                <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">⚙️ Configuração</div>
+                <button onclick="mudarTela('cadastro-empresa')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-white bg-slate-800 transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-users-gear text-blue-400 w-4 text-center"></i> Cadastro de Clientes
+                </button>
+                <button onclick="mudarTela('banco-infinity')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-database text-slate-400 w-4 text-center"></i> Banco Global Master
+                </button>
+                <button onclick="mudarTela('config-empresa')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-gears text-slate-400 w-4 text-center"></i> Configuração da Empresa
+                </button>
+                <button onclick="mudarTela('controle-acessos')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-key text-slate-400 w-4 text-center"></i> Controle de Acessos
+                </button>
+                <button onclick="mudarTela('central-suporte')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-headset text-slate-400 w-4 text-center"></i> Central de Suporte
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Footer User Profile Info -->
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">
+                    RB
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Renan Brumatti</p>
+                    <p class="text-[10px] text-slate-400 truncate">Admin Master</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE TRABALHO -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10 shadow-sm shrink-0">
+            <div class="flex flex-col">
+                <h2 id="header-titulo" class="text-lg font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-shield-halved text-blue-600"></i> Módulo Administrativo
+                </h2>
+                <p id="header-subtitulo" class="text-xs text-slate-500 mt-0.5 ml-6">Gerenciamento global de clientes e acessos</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-xs bg-slate-50 text-slate-700 px-4 py-2 rounded-lg border border-slate-200 flex items-center gap-4 shadow-sm" id="header-ambiente-info">
+                    <div class="text-right border-r border-slate-200 pr-4">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Última Sincronização</p>
+                        <p id="label-ultima-att" class="text-xs font-bold text-slate-700">--/--/---- --:--</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ambiente Ativo</p>
+                        <p class="text-xs font-bold text-red-600">SUPER ADMIN</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 relative">
+
+            <!-- TELAS MOCKADAS (DESENVOLVIMENTO) -->
+            <div id="tela-produtos-imagens" class="hidden flex items-center justify-center h-full"><div class="text-center text-slate-400"><i class="fa-solid fa-person-digging text-4xl mb-4"></i><h3 class="text-base font-bold">Produtos & Imagens</h3></div></div>
+            <div id="tela-banco-infinity" class="hidden flex items-center justify-center h-full"><div class="text-center text-slate-400"><i class="fa-solid fa-person-digging text-4xl mb-4"></i><h3 class="text-base font-bold">Banco de dados infinity</h3></div></div>
+            <div id="tela-central-suporte" class="hidden flex items-center justify-center h-full"><div class="text-center text-slate-400"><i class="fa-solid fa-person-digging text-4xl mb-4"></i><h3 class="text-base font-bold">Central de suporte</h3></div></div>
+            <div id="tela-config-empresa" class="hidden flex items-center justify-center h-full"><div class="text-center text-slate-400"><i class="fa-solid fa-person-digging text-4xl mb-4"></i><h3 class="text-base font-bold">Configuração da Empresa</h3></div></div>
+            <div id="tela-controle-acessos" class="hidden flex items-center justify-center h-full"><div class="text-center text-slate-400"><i class="fa-solid fa-person-digging text-4xl mb-4"></i><h3 class="text-base font-bold">Controle de Acessos</h3></div></div>
+
+            <!-- ================= TELA: GESTÃO DE TELAS (EMPRESA A) ================= -->
+            <div id="tela-empresa-a" class="w-full flex flex-col gap-6 hidden pb-10">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-base font-semibold text-slate-900">Menu de Gestão de Telas</h2>
+                    <p class="text-xs font-semibold text-slate-500">Telas Liberadas: <span id="label-telas-liberadas" class="text-blue-600 font-bold">1</span></p>
+                </div>
+                <div id="container-telas-dinamicas" class="space-y-4"></div>
+            </div>
+
+            <!-- ================= TELA: CADASTRO DE EMPRESA ================= -->
+            <div id="tela-cadastro-empresa" class="w-full flex flex-col gap-6 block">
+                <div class="flex justify-between items-center bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900">Clientes da Plataforma</h3>
+                        <p class="text-xs text-slate-500">Gerencie as empresas cadastradas no sistema Infinity Mídia (Nuvem Supabase).</p>
+                    </div>
+                    <button onclick="abrirModalEmpresa('novo')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm transition">
+                        <i class="fa-solid fa-plus"></i> Nova Empresa
+                    </button>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex-grow">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4">
+                        <div class="flex gap-4 w-full max-w-2xl">
+                            <div class="relative flex-grow">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                </span>
+                                <input type="text" id="filtro-busca-empresa" oninput="renderizarTabelaEmpresas()" placeholder="Buscar por nome ou CNPJ..." class="w-full pl-9 p-2 border border-slate-300 rounded-lg text-xs outline-none focus:border-blue-500 bg-slate-50">
+                            </div>
+                            <select id="filtro-status-empresa" onchange="renderizarTabelaEmpresas()" class="p-2 border border-slate-300 rounded-lg text-xs bg-slate-50 font-semibold outline-none focus:border-blue-500">
+                                <option value="Todas">Status: Todos</option>
+                                <option value="Ativa">Ativas</option>
+                                <option value="Bloqueada">Bloqueadas</option>
+                                <option value="Inativa">Inativas</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 text-[10px] uppercase font-bold tracking-wider border-b border-slate-200">
+                                    <th class="py-2.5 px-3">Empresa</th>
+                                    <th class="py-2.5 px-3">CNPJ</th>
+                                    <th class="py-2.5 px-3">Responsável / Contato</th>
+                                    <th class="py-2.5 px-3">Cidade</th>
+                                    <th class="py-2.5 px-3 text-center">Telas</th>
+                                    <th class="py-2.5 px-3 text-center">Status</th>
+                                    <th class="py-2.5 px-3 text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-empresas" class="divide-y divide-slate-100 border-b border-slate-200"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- ================= MODAL: CADASTRO DE EMPRESA ================= -->
+    <div id="modal-empresa" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center hidden z-[60]">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 id="titulo-modal-empresa" class="font-bold text-slate-900 text-base">Nova Empresa</h3>
+                <button onclick="fecharModalEmpresa()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 flex flex-col gap-4">
+                <input type="hidden" id="empresa-id">
+                <input type="hidden" id="empresa-data-bloqueio">
+                
+                <div class="flex gap-4">
+                    <div class="w-1/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">CNPJ <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="text" id="empresa-cnpj" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500" placeholder="Apenas números">
+                            <button onclick="buscarCNPJ()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 rounded-lg text-xs transition-colors" title="Buscar dados"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                        <p id="msg-cnpj" class="text-[10px] text-red-500 mt-1 hidden">Buscando...</p>
+                    </div>
+                    <div class="w-2/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Razão Social <span class="text-red-500">*</span></label>
+                        <input type="text" id="empresa-razao" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-900 uppercase focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-2/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nome Fantasia <span class="text-red-500">*</span></label>
+                        <input type="text" id="empresa-fantasia" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-900 uppercase focus:outline-none focus:border-blue-500">
+                    </div>
+                    
+                    <div class="w-1/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Situação do Sistema</label>
+                        <select id="empresa-status" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500">
+                            <option value="Ativa" class="text-emerald-600">Ativa</option>
+                            <option value="Bloqueada" class="text-red-600">Bloqueada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-200 my-1"></div>
+
+                <div class="flex gap-4">
+                    <div class="w-1/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">CEP <span class="text-red-500">*</span></label>
+                        <div class="flex gap-2">
+                            <input type="text" id="empresa-cep" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500" placeholder="00000-000">
+                            <button onclick="buscarCEP()" class="bg-blue-100 hover:bg-blue-200 text-blue-700 font-bold px-3 rounded-lg text-xs transition-colors" title="Buscar Endereço"><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </div>
+                    <div class="w-2/3">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Endereço (Rua/Av/Bairro)</label>
+                        <input type="text" id="empresa-endereco" class="w-full bg-slate-100 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-600 focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="flex gap-4 items-center border-b border-slate-200 pb-3">
+                     <div class="w-1/2">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Cidade / UF</label>
+                        <input type="text" id="empresa-cidade" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none" placeholder="Cidade - UF">
+                    </div>
+                </div>
+
+                <div class="flex gap-4">
+                    <div class="w-1/2">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nome do Responsável <span class="text-red-500">*</span></label>
+                        <input type="text" id="empresa-responsavel" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-semibold text-slate-900 focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="w-1/2">
+                        <label class="block text-[11px] font-semibold text-slate-700 mb-1">WhatsApp <span class="text-red-500">*</span></label>
+                        <input type="text" id="empresa-whatsapp" oninput="formatarWhatsApp(this)" maxlength="15" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-900 focus:outline-none focus:border-blue-500" placeholder="(00) 00000-0000">
+                    </div>
+                </div>
+
+                <!-- QUANTIDADE DE TELAS -->
+                <div class="bg-blue-50/50 p-4 rounded-xl border border-blue-200 mt-1">
+                    <label class="block text-[11px] font-bold text-blue-900 mb-2 uppercase tracking-wider">Telas Liberadas para o Cliente</label>
+                    <div class="flex gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="empresa_telas" value="1" class="peer hidden" checked>
+                            <div class="w-9 h-9 rounded-full border border-blue-300 flex items-center justify-center font-bold text-blue-700 bg-white peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 transition-colors shadow-sm text-xs">1</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="empresa_telas" value="2" class="peer hidden">
+                            <div class="w-9 h-9 rounded-full border border-blue-300 flex items-center justify-center font-bold text-blue-700 bg-white peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 transition-colors shadow-sm text-xs">2</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="empresa_telas" value="3" class="peer hidden">
+                            <div class="w-9 h-9 rounded-full border border-blue-300 flex items-center justify-center font-bold text-blue-700 bg-white peer-checked:bg-blue-600 peer-checked:text-white peer-checked:border-blue-600 transition-colors shadow-sm text-xs">3</div>
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end gap-3">
+                <button onclick="fecharModalEmpresa()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Cancelar</button>
+                <button onclick="salvarEmpresa()" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold shadow-sm">Salvar Cadastro</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= CONEXÃO SUPABASE =================
+        const supabaseUrl = 'https://sqotdkmjebicciatznsv.supabase.co';
+        const supabaseKey = 'sb_publishable_8aOvUrsLvBlf9KIqsL2iyw_eqPn0_a1';
+        const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function inicializar() {
+            renderizarTabelaEmpresas();
+            document.getElementById('label-ultima-att').innerText = new Date().toLocaleString('pt-BR');
+            mudarTela('cadastro-empresa');
+        }
+
+        function formatarWhatsApp(input) {
+            let v = input.value.replace(/\D/g, ''); 
+            if (v.length > 11) v = v.substring(0, 11);
+            if (v.length > 2) v = v.replace(/^(\d{2})(\d)/g, '($1) $2');
+            if (v.length > 7) v = v.replace(/(\d{5})(\d)/, '$1-$2');
+            input.value = v;
+        }
+
+        function formatarCNPJ(cnpj) {
+            if(!cnpj) return "";
+            cnpj = cnpj.replace(/\D/g, '');
+            if(cnpj.length === 14) return cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, "$1.$2.$3/$4-$5");
+            return cnpj;
+        }
+
+        function mudarTela(telaAlvo) {
+            const telas = ['empresa-a', 'produtos-imagens', 'cadastro-empresa', 'banco-infinity', 'config-empresa', 'controle-acessos', 'central-suporte'];
+            telas.forEach(t => { const el = document.getElementById(`tela-${t}`); if (el) el.classList.add('hidden'); });
+            const alvo = document.getElementById(`tela-${telaAlvo}`);
+            if (alvo) alvo.classList.remove('hidden');
+        }
+
+        // ================= LISTAR EMPRESAS DO SUPABASE =================
+        async function renderizarTabelaEmpresas() {
+            const tbody = document.getElementById('tabela-empresas');
+            if(!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-slate-400 text-xs">Carregando da nuvem...</td></tr>';
+
+            const { data: empresasDB_Nuvem, error } = await dbSupabase
+                .from('empresas')
+                .select('*')
+                .order('id', { ascending: true });
+
+            if (error) {
+                console.error("Erro ao buscar empresas:", error);
+                tbody.innerHTML = '<tr><td colspan="7" class="p-4 text-center text-red-500 text-xs">Erro ao carregar dados do Supabase.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            const termo = document.getElementById('filtro-busca-empresa').value.toLowerCase();
+            const statusFiltro = document.getElementById('filtro-status-empresa').value;
+
+            empresasDB_Nuvem.forEach(emp => {
+                if (termo && !emp.fantasia.toLowerCase().includes(termo) && !emp.razao.toLowerCase().includes(termo) && !emp.cnpj.includes(termo)) return;
+                if (statusFiltro !== "Todas" && emp.status !== statusFiltro) return;
+
+                let badgeStatus = emp.status === "Ativa" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 border-b border-slate-100 transition-colors">
+                        <td class="py-2.5 px-3"><p class="font-bold text-slate-800 text-xs uppercase">${emp.fantasia}</p><p class="text-[9px] text-slate-500 uppercase">${emp.razao}</p></td>
+                        <td class="py-2.5 px-3 font-mono text-[11px] font-semibold text-slate-600">${formatarCNPJ(emp.cnpj)}</td>
+                        <td class="py-2.5 px-3 text-xs"><p class="font-semibold text-slate-700">${emp.responsavel}</p><p class="text-[10px] text-blue-600 font-bold">${emp.whatsapp}</p></td>
+                        <td class="py-2.5 px-3 text-[11px] font-semibold text-slate-600">${emp.cidade || '--'}</td>
+                        <td class="py-2.5 px-3 text-center font-black text-blue-600 text-xs">${emp.telas}</td>
+                        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 text-[9px] font-bold uppercase rounded border ${badgeStatus}">${emp.status}</span></td>
+                        <td class="py-2.5 px-3 text-center"><span class="text-slate-400 text-xs">Nuvem OK</span></td>
+                    </tr>`;
+            });
+        }
+
+        function abrirModalEmpresa(id) {
+            document.getElementById('msg-cnpj').classList.add('hidden');
+            document.getElementById('empresa-id').value = 'novo';
+            document.getElementById('empresa-data-bloqueio').value = '';
+            document.getElementById('empresa-cnpj').value = '';
+            document.getElementById('empresa-razao').value = '';
+            document.getElementById('empresa-fantasia').value = '';
+            document.getElementById('empresa-cep').value = '';
+            document.getElementById('empresa-endereco').value = '';
+            document.getElementById('empresa-cidade').value = '';
+            document.getElementById('empresa-responsavel').value = '';
+            document.getElementById('empresa-whatsapp').value = '';
+            document.getElementById('empresa-status').value = 'Ativa';
+            document.getElementById('modal-empresa').classList.remove('hidden');
+        }
+
+        function fecharModalEmpresa() { document.getElementById('modal-empresa').classList.add('hidden'); }
+
+        // ================= SALVAR NA NUVEM =================
+        async function salvarEmpresa() {
+            const cnpj = document.getElementById('empresa-cnpj').value.replace(/\D/g, '');
+            const razao = document.getElementById('empresa-razao').value.trim().toUpperCase();
+            const fantasia = document.getElementById('empresa-fantasia').value.trim().toUpperCase();
+            
+            let telas = 1;
+            const radios = document.getElementsByName('empresa_telas');
+            for(let r of radios) { if(r.checked) telas = parseInt(r.value); }
+
+            const cep = document.getElementById('empresa-cep').value.trim();
+            const endereco = document.getElementById('empresa-endereco').value.trim();
+            const cidade = document.getElementById('empresa-cidade').value.trim();
+            const responsavel = document.getElementById('empresa-responsavel').value.trim();
+            const whatsapp = document.getElementById('empresa-whatsapp').value.trim();
+            const status = document.getElementById('empresa-status').value;
+
+            if (!cnpj || !razao || !fantasia || !cep || !responsavel || !whatsapp) return alert("Por favor, preencha todos os campos obrigatórios (*).");
+
+            const { error } = await dbSupabase
+                .from('empresas')
+                .insert([{ cnpj, razao, fantasia, cep, endereco, cidade, responsavel, whatsapp, telas, status }]);
+
+            if (error) {
+                console.error("Erro do Supabase:", error);
+                return alert("Erro ao salvar no banco de dados: " + error.message);
+            }
+
+            alert("SUCESSO! Empresa salva na nuvem com sucesso.");
+            fecharModalEmpresa();
+            await renderizarTabelaEmpresas();
+        }
+
+        async function buscarCNPJ() {
+            const cnpj = document.getElementById('empresa-cnpj').value.replace(/\D/g, '');
+            const msg = document.getElementById('msg-cnpj');
+            if (cnpj.length !== 14) return alert("O CNPJ deve ter 14 números.");
+
+            msg.innerText = "Buscando..."; msg.classList.remove('hidden');
+            try {
+                const response = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+                if (!response.ok) throw new Error("CNPJ não encontrado");
+                const data = await response.json();
+                document.getElementById('empresa-razao').value = data.razao_social || '';
+                document.getElementById('empresa-fantasia').value = data.nome_fantasia || data.razao_social || '';
+                if (data.cep) {
+                    document.getElementById('empresa-cep').value = data.cep;
+                    document.getElementById('empresa-endereco').value = `${data.logradouro}, ${data.numero} - ${data.bairro}`;
+                    document.getElementById('empresa-cidade').value = `${data.municipio} - ${data.uf}`;
+                }
+                msg.classList.add('hidden');
+            } catch (error) { msg.innerText = "Erro ao buscar CNPJ."; }
+        }
+
+        async function buscarCEP() {
+            const cep = document.getElementById('empresa-cep').value.replace(/\D/g, '');
+            if (cep.length !== 8) return alert("CEP inválido.");
+            try {
+                const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                const data = await response.json();
+                if (!data.erro) {
+                    document.getElementById('empresa-endereco').value = `${data.logradouro} - ${data.bairro}`;
+                    document.getElementById('empresa-cidade').value = `${data.localidade} - ${data.uf}`;
+                } else alert("CEP não encontrado.");
+            } catch (error) { alert("Erro ao buscar o CEP."); }
+        }
+
+        window.onload = inicializar;
+    </script>
+</body>
+</html>
