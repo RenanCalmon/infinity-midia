@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Mídia - Gestão Corporativa</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        infinity: {
+                            lightBg: '#f8fafc',
+                            cardBg: '#ffffff',
+                            primary: '#2563eb',
+                            border: '#e2e8f0',
+                            text: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased h-screen flex overflow-hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between z-20 text-white shrink-0">
+        <div>
+            <!-- Logo / Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+                <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
+                    IM
+                </div>
+                <div>
+                    <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
+                    <p class="text-xs text-slate-400">Gestão Corporativa</p>
+                </div>
+            </div>
+            
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5 overflow-y-auto">
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-2 px-4">📺 Menu de Gestão</div>
+                <button onclick="mudarTela('empresa-a')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-building text-slate-400 w-4 text-center"></i> Empresa A (Usuário)
+                </button>
+
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">📦 Cadastro da Loja</div>
+                <button onclick="mudarTela('produtos-imagens')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-white bg-slate-800 transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-box-open text-blue-400 w-4 text-center"></i> Produtos & Imagens
+                </button>
+
+                <div class="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">⚙️ Configuração</div>
+                <button onclick="mudarTela('cadastro-empresa')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-slate-300 hover:bg-slate-800 hover:text-white transition font-medium text-sm flex items-center gap-3">
+                    <i class="fa-solid fa-pen-to-square text-slate-400 w-4 text-center"></i> Cadastro de Empresa
+                </button>
+            </nav>
+        </div>
+        
+        <!-- Footer User Profile Info -->
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">
+                    RB
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-semibold text-slate-200 truncate">Renan Brumatti</p>
+                    <p class="text-[10px] text-slate-400 truncate">Admin Master</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col overflow-hidden bg-slate-100 text-slate-900 relative">
+        
+        <!-- TOP HEADER -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10 shadow-sm shrink-0">
+            <div class="flex flex-col">
+                <h2 id="header-titulo" class="text-lg font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-box text-blue-600"></i> Módulo Loja
+                </h2>
+                <p id="header-subtitulo" class="text-xs text-slate-500 mt-0.5 ml-6">Gestão de catálogo e parâmetros da empresa (Supabase)</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-xs bg-slate-50 text-slate-700 px-4 py-2 rounded-lg border border-slate-200 flex items-center gap-4 shadow-sm" id="header-ambiente-info">
+                    <div class="text-right border-r border-slate-200 pr-4">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Última Sincronização</p>
+                        <p id="label-ultima-att" class="text-xs font-bold text-slate-700">--/--/---- --:--</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ambiente Nuvem</p>
+                        <p class="text-xs font-bold text-emerald-600">CONECTADO</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 relative">
+
+            <!-- TELA PRINCIPAL -->
+            <div id="tela-produtos-imagens" class="w-full flex flex-col gap-6 block">
+                <div class="flex justify-between items-center bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900">Produtos & Imagens</h3>
+                        <p class="text-xs text-slate-500">Gerencie seu estoque geral, edite produtos e adicione imagens direto na nuvem.</p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-3 justify-end">
+                        <button onclick="abrirModalProduto('novo')" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm transition">
+                            <i class="fa-solid fa-plus"></i> Novo Produto Manual
+                        </button>
+                        <label for="input-arquivo-precos" class="cursor-pointer bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm transition">
+                            <i class="fa-regular fa-file-lines"></i> Atualizar Preços (TXT)
+                        </label>
+                        <input type="file" id="input-arquivo-precos" accept=".txt" class="hidden" onchange="processarTXTPrecos(event)">
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex-grow">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-100 pb-4">
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                                    <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                                </span>
+                                <input type="text" id="filtro-busca-loja" oninput="renderizarTabelaProdutos()" placeholder="Buscar produto..." class="w-48 bg-slate-50 border border-slate-300 rounded-lg pl-9 pr-4 py-2 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-blue-500 transition">
+                            </div>
+                            
+                            <select id="filtro-categoria-loja" onchange="renderizarTabelaProdutos()" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500 transition">
+                                <option value="todas">Todas Categorias</option>
+                                <option value="Bovinos">Bovinos</option>
+                                <option value="Suínos">Suínos</option>
+                                <option value="Aves">Aves</option>
+                                <option value="Embutidos">Embutidos</option>
+                                <option value="Peixes">Peixes</option>
+                                <option value="Hortifruti">Hortifruti</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+
+                            <button onclick="alternarEdicaoPreco()" id="btn-edicao-preco" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-2 rounded-lg text-xs font-semibold flex items-center gap-2 shadow-sm transition ml-2">
+                                <i class="fa-solid fa-bolt"></i> Editar Preços Rápido
+                            </button>
+                            <button onclick="salvarEdicaoRapida()" id="btn-salvar-rapida" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold shadow-sm transition hidden flex items-center gap-2">
+                                <i class="fa-solid fa-floppy-disk"></i> Salvar Preços
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 uppercase text-[11px] tracking-wider border-b border-slate-200">
+                                    <th class="py-3 px-4 font-semibold text-center w-12"><input type="checkbox" id="chk-all-loja" onchange="toggleSelectAll(this.checked)" class="w-4 h-4 cursor-pointer text-blue-600 bg-slate-50 border-slate-300 rounded focus:ring-0"></th>
+                                    <th class="py-3 px-4 font-semibold text-center">Imagem</th>
+                                    <th class="py-3 px-4 font-semibold">Cod. PDV</th>
+                                    <th class="py-3 px-4 font-semibold">Produto / Marca</th>
+                                    <th class="py-3 px-4 font-semibold">Categoria</th>
+                                    <th class="py-3 px-4 font-semibold">Preço</th>
+                                    <th class="py-3 px-4 font-semibold text-center">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-produtos" class="divide-y divide-slate-100 text-xs text-slate-700"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL: EDITAR PRODUTO -->
+    <div id="modal-editar-produto" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col">
+            <div class="px-6 py-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h3 id="titulo-modal-produto" class="font-bold text-slate-900 text-base">Edição de Produto</h3>
+                <button onclick="fecharModalProduto()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <div class="p-6 flex gap-6">
+                <div class="w-2/3 flex flex-col gap-4">
+                    <input type="hidden" id="edit-prod-id">
+                    
+                    <div class="flex gap-4">
+                        <div class="w-1/3">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Cod. PDV</label>
+                            <input type="text" id="edit-prod-pdv" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-blue-700 font-bold focus:outline-none focus:border-blue-500 text-center">
+                        </div>
+                        <div class="w-2/3">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Preço <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-prod-preco" oninput="validarMoedaInput(this)" onblur="formatarMoedaBlur(this)" placeholder="00,00" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-red-600 focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4">
+                        <div class="flex-grow">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Nome do Produto <span class="text-red-500">*</span></label>
+                            <input type="text" id="edit-prod-nome" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 font-semibold uppercase focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    
+                    <div class="flex gap-4">
+                        <div class="w-1/2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Categoria</label>
+                            <select id="edit-prod-categoria" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500">
+                                <option value="Bovinos">Bovinos</option>
+                                <option value="Suínos">Suínos</option>
+                                <option value="Aves">Aves</option>
+                                <option value="Embutidos">Embutidos</option>
+                                <option value="Peixes">Peixes</option>
+                                <option value="Hortifruti">Hortifruti</option>
+                                <option value="Outros">Outros</option>
+                            </select>
+                        </div>
+                        <div class="w-1/2">
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">Unidade</label>
+                            <select id="edit-prod-unidade" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-blue-500">
+                                <option value="KG">KG</option>
+                                <option value="UN">UN</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end space-x-3 px-6 py-4 border-t border-slate-200 bg-slate-50">
+                <button onclick="fecharModalProduto()" class="px-4 py-2 bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold">Cancelar</button>
+                <button onclick="salvarModalProduto()" class="px-5 py-2 bg-blue-600 text-white rounded-lg text-xs font-semibold shadow-sm">Salvar Produto</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ================= CONEXÃO SUPABASE =================
+        const supabaseUrl = 'https://sqotdkmjebicciatznsv.supabase.co';
+        const supabaseKey = 'sb_publishable_8aOvUrsLvBlf9KIqsL2iyw_eqPn0_a1';
+        const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        let meusProdutos = [];
+        let modoEdicao = null;
+        let selecionadosLoja = [];
+        let produtosVisiveisLoja = [];
+
+        async function inicializar() {
+            document.getElementById('label-ultima-att').innerText = new Date().toLocaleString('pt-BR');
+            await carregarProdutosDoSupabase();
+        }
+
+        async function carregarProdutosDoSupabase() {
+            const { data, error } = await dbSupabase
+                .from('produtos')
+                .select('*')
+                .order('codigo_pdv', { ascending: true });
+
+            if (error) {
+                console.error("Erro ao carregar produtos:", error);
+                return;
+            }
+
+            meusProdutos = data.map(p => ({
+                id: p.id,
+                codigoPDV: p.codigo_pdv,
+                nomeTXT: p.nome,
+                preco: p.preco,
+                unidade: p.unidade,
+                categoria: p.categoria,
+                imagem: p.imagem
+            }));
+
+            renderizarTabelaProdutos();
+        }
+
+        function mudarTela(telaAlvo) {
+            if(telaAlvo === 'cadastro-empresa') { window.location.href = "03 - CADASTRO2.0.HTML"; return; }
+        }
+
+        function validarMoedaInput(input) {
+            let val = input.value.replace(/\./g, ',').replace(/[^\d,]/g, '');
+            let partes = val.split(',');
+            input.value = partes.length > 2 ? partes[0] + ',' + partes.slice(1).join('') : val;
+        }
+
+        function formatarMoedaBlur(input) {
+            let val = input.value;
+            if(val === '') return;
+            let partes = val.split(',');
+            let inteiro = partes[0] || '0';
+            let decimal = partes[1] || '';
+            if (decimal.length === 0 && val.includes(',')) decimal = '00';
+            else if (decimal.length === 1) decimal = decimal + '0';
+            else if (decimal.length > 2) decimal = decimal.substring(0, 2);
+            else if (!val.includes(',')) decimal = '00';
+            input.value = parseInt(inteiro, 10) + ',' + decimal;
+        }
+
+        function renderizarTabelaProdutos() {
+            const tb = document.getElementById('tabela-produtos'); if(!tb) return;
+            tb.innerHTML = '';
+            
+            const termo = document.getElementById('filtro-busca-loja').value.toLowerCase();
+            const catFiltro = document.getElementById('filtro-categoria-loja').value;
+            produtosVisiveisLoja = []; 
+
+            meusProdutos.forEach((p, index) => {
+                let textoBusca = `${p.nomeTXT} ${p.codigoPDV}`.toLowerCase();
+                if(termo && !textoBusca.includes(termo)) return;
+                if(catFiltro !== 'todas' && p.categoria !== catFiltro) return;
+
+                produtosVisiveisLoja.push(String(p.codigoPDV));
+                const isChecked = selecionadosLoja.includes(String(p.codigoPDV)) ? 'checked' : '';
+                
+                let celulaPreco = modoEdicao === 'preco' 
+                    ? `<input type="text" id="edit-preco-${index}" value="${p.preco}" oninput="validarMoedaInput(this)" onblur="formatarMoedaBlur(this)" class="w-20 p-1 border border-red-300 rounded text-center font-bold text-red-600 bg-white text-xs">` 
+                    : `<span class="font-bold text-red-600">R$ ${p.preco}</span>`;
+                
+                let htmlImg = p.imagem ? `<img src="${p.imagem}" class="w-10 h-10 object-contain rounded-md border mx-auto bg-white">` : `<span class="text-[10px] text-slate-400">Sem Foto</span>`;
+
+                tb.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+                        <td class="py-3 px-4 text-center"><input type="checkbox" class="w-4 h-4 text-blue-600 rounded" ${isChecked} onchange="toggleCheck('${p.codigoPDV}')"></td>
+                        <td class="py-3 px-4 text-center w-16">${htmlImg}</td>
+                        <td class="py-3 px-4 font-mono font-bold text-blue-600">${p.codigoPDV}</td>
+                        <td class="py-3 px-4 font-semibold uppercase text-xs text-slate-900">${p.nomeTXT}</td>
+                        <td class="py-3 px-4"><span class="text-[10px] px-2 py-0.5 rounded border font-semibold bg-slate-100">${p.categoria}</span></td>
+                        <td class="py-3 px-4">${celulaPreco}</td>
+                        <td class="py-3 px-4 text-center"><button onclick="abrirModalProduto(${index})" class="text-slate-400 hover:text-blue-600 p-1"><i class="fa-solid fa-pen text-xs"></i></button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        function toggleSelectAll(isChecked) {
+            selecionadosLoja = isChecked ? [...produtosVisiveisLoja] : []; renderizarTabelaProdutos();
+        }
+
+        function toggleCheck(valor) {
+            const idx = selecionadosLoja.indexOf(valor);
+            if(idx > -1) selecionadosLoja.splice(idx, 1); else selecionadosLoja.push(valor);
+        }
+
+        function abrirModalProduto(index) {
+            if (modoEdicao === 'preco') { alert("Salve a edição rápida primeiro!"); return; }
+            
+            if (index === 'novo') {
+                document.getElementById('titulo-modal-produto').innerText = "Novo Produto";
+                document.getElementById('edit-prod-id').value = '';
+                document.getElementById('edit-prod-pdv').value = '';
+                document.getElementById('edit-prod-preco').value = '';
+                document.getElementById('edit-prod-nome').value = '';
+                document.getElementById('edit-prod-categoria').value = 'Bovinos';
+                document.getElementById('edit-prod-unidade').value = 'KG';
+            } else {
+                const p = meusProdutos[index];
+                document.getElementById('titulo-modal-produto').innerText = "Editar Produto";
+                document.getElementById('edit-prod-id').value = p.id;
+                document.getElementById('edit-prod-pdv').value = p.codigoPDV;
+                document.getElementById('edit-prod-preco').value = p.preco;
+                document.getElementById('edit-prod-nome').value = p.nomeTXT;
+                document.getElementById('edit-prod-categoria').value = p.categoria;
+                document.getElementById('edit-prod-unidade').value = p.unidade;
+            }
+            document.getElementById('modal-editar-produto').classList.remove('hidden');
+        }
+
+        function fecharModalProduto() { document.getElementById('modal-editar-produto').classList.add('hidden'); }
+
+        async function salvarModalProduto() {
+            const id = document.getElementById('edit-prod-id').value;
+            const pdv = document.getElementById('edit-prod-pdv').value;
+            const preco = document.getElementById('edit-prod-preco').value;
+            const nome = document.getElementById('edit-prod-nome').value.toUpperCase();
+            const categoria = document.getElementById('edit-prod-categoria').value;
+            const unidade = document.getElementById('edit-prod-unidade').value;
+
+            if(!pdv || !preco || !nome) return alert("Preencha PDV, Preço e Nome.");
+
+            const dadosProd = { codigo_pdv: pdv, nome, preco, unidade, categoria };
+
+            let error;
+            if(!id) {
+                let res = await dbSupabase.from('produtos').insert([dadosProd]);
+                error = res.error;
+            } else {
+                let res = await dbSupabase.from('produtos').update(dadosProd).eq('id', id);
+                error = res.error;
+            }
+
+            if(error) { alert("Erro ao salvar produto: " + error.message); return; }
+
+            fecharModalProduto();
+            await carregarProdutosDoSupabase();
+            alert("Produto salvo na nuvem com sucesso!");
+        }
+
+        function alternarEdicaoPreco() {
+            modoEdicao = modoEdicao === 'preco' ? null : 'preco';
+            document.getElementById('btn-salvar-rapida').classList.toggle('hidden', modoEdicao !== 'preco');
+            document.getElementById('btn-edicao-preco').innerHTML = modoEdicao === 'preco' ? `<i class="fa-solid fa-xmark"></i> Cancelar` : `<i class="fa-solid fa-bolt"></i> Editar Preços Rápido`;
+            renderizarTabelaProdutos();
+        }
+
+        async function salvarEdicaoRapida() {
+            for (let i = 0; i < meusProdutos.length; i++) {
+                const p = meusProdutos[i];
+                const input = document.getElementById(`edit-preco-${i}`);
+                if(input && produtosVisiveisLoja.includes(String(p.codigoPDV))) {
+                    await dbSupabase.from('produtos').update({ preco: input.value }).eq('id', p.id);
+                }
+            }
+            alternarEdicaoPreco();
+            await carregarProdutosDoSupabase();
+            alert("Preços atualizados na nuvem!");
+        }
+
+        async function processarTXTPrecos(event) {
+            const arquivo = event.target.files[0];
+            if (!arquivo) return;
+            const leitor = new FileReader();
+            leitor.onload = async function(e) {
+                const linhas = e.target.result.split('\n');
+                let count = 0;
+                for(let linha of linhas) {
+                    let partes = linha.split(';'); // Exemplo de separador de TXT de balança
+                    if(partes.length >= 2) {
+                        let pdv = partes[0].trim();
+                        let preco = partes[1].trim();
+                        await dbSupabase.from('produtos').update({ preco: preco }).eq('codigo_pdv', pdv);
+                        count++;
+                    }
+                }
+                await carregarProdutosDoSupabase();
+                alert(`Carga de preços processada! ${count} itens atualizados.`);
+            };
+            leitor.readAsText(arquivo);
+        }
+
+        window.onload = inicializar;
+    </script>
+</body>
+</html>

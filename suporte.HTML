@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infinity Mídia - Suporte</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        infinity: {
+                            lightBg: '#f8fafc',
+                            cardBg: '#ffffff',
+                            primary: '#2563eb',
+                            border: '#e2e8f0',
+                            text: '#1e293b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-900 font-sans antialiased h-screen w-screen overflow-hidden flex">
+
+    <!-- MENU LATERAL -->
+    <aside class="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 shadow-2xl z-20 text-white">
+        <div class="p-5 border-b border-slate-800 flex items-center space-x-3">
+            <div class="bg-blue-600 text-white p-2.5 rounded-lg shadow-md flex items-center justify-center font-black">
+                IM
+            </div>
+            <div>
+                <h1 class="font-bold text-base tracking-wide text-white">Infinity Mídia</h1>
+                <p class="text-[11px] text-slate-400 uppercase tracking-wider">Gestão Corporativa</p>
+            </div>
+        </div>
+        
+        <nav class="flex-grow p-4 space-y-1.5 overflow-y-auto">
+            <div>
+                <div class="w-full flex items-center gap-3 text-left text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2 mt-4 px-4">
+                    <span>⚙️</span> Configuração
+                </div>
+                <div class="space-y-1 mt-1">
+                    <button onclick="mudarTela('cadastro-empresa')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-white transition-colors">
+                        <i class="fa-solid fa-users-gear text-slate-400 w-4 text-center mr-1"></i> Cadastro de Clientes
+                    </button>
+                    <button onclick="mudarTela('central-suporte')" class="nav-btn w-full text-left px-4 py-3 rounded-xl text-xs font-semibold bg-blue-600 text-white transition-colors shadow-sm">
+                        <i class="fa-solid fa-headset text-white w-4 text-center mr-1"></i> Central de Suporte
+                    </button>
+                </div>
+            </div>
+        </nav>
+        
+        <div class="p-4 border-t border-slate-800 bg-slate-950/50 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-9 h-9 rounded-full bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 font-bold text-sm">
+                    RB
+                </div>
+                <div class="overflow-hidden">
+                    <p id="menu-usuario-nome" class="text-xs font-semibold text-slate-200 truncate">Renan Brumatti</p>
+                    <p id="menu-usuario-perfil" class="text-[10px] text-slate-400 truncate uppercase">Admin Master</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ÁREA DE TRABALHO -->
+    <main class="flex-1 flex flex-col h-screen overflow-hidden relative">
+        
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10 shadow-sm shrink-0">
+            <div class="flex flex-col">
+                <h2 class="text-lg font-bold text-slate-900 tracking-wide flex items-center gap-2">
+                    <i class="fa-solid fa-headset text-blue-600"></i> Central de Suporte
+                </h2>
+                <p class="text-xs text-slate-500 mt-0.5 ml-7">Atendimento e resolução de problemas Infinity Mídia (Supabase)[cite: 4]</p>
+            </div>
+            <div class="flex items-center space-x-4">
+                <div class="text-xs bg-slate-50 text-slate-700 px-4 py-2 rounded-lg border border-slate-200 flex items-center gap-4 shadow-sm">
+                    <div class="text-right">
+                        <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ambiente Nuvem</p>
+                        <p class="text-xs font-bold text-emerald-600">CONECTADO</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="flex-1 overflow-y-auto p-6 relative">
+
+            <!-- ================= TELA: CENTRAL DE SUPORTE ================= -->
+            <div id="tela-central-suporte" class="w-full flex flex-col gap-6 block">
+                
+                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center">
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900">Área de Suporte ao Cliente[cite: 4]</h3>
+                        <p class="text-xs text-slate-500">Estamos aqui para ajudar você a resolver problemas. Escolha o canal de atendimento.[cite: 4]</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    
+                    <!-- LADO ESQUERDO -->
+                    <div class="lg:col-span-5 flex flex-col gap-6">
+                        <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col relative overflow-hidden h-full">
+                            <div class="relative z-10 flex flex-col h-full">
+                                <div class="w-10 h-10 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center text-xl mb-4 border border-emerald-100">
+                                    <i class="fa-brands fa-whatsapp"></i>
+                                </div>
+                                <h3 class="text-sm font-bold text-slate-900 mb-2">Precisa de agilidade?[cite: 4]</h3>
+                                <p class="text-xs text-slate-500 mb-6 font-medium leading-relaxed flex-grow">
+                                    Nossa equipe está disponível no WhatsApp para resolver problemas urgentes de exibição ou conexão em tempo real.[cite: 4]
+                                </p>
+                                <a href="https://wa.me/5527999573460" target="_blank" class="block w-full text-center bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors shadow-sm text-xs flex justify-center items-center gap-2">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i> Iniciar Conversa no WhatsApp[cite: 4]
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                            <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-xl shrink-0 border border-blue-100">
+                                <i class="fa-regular fa-clock"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-900 mb-0.5">Horário de Atendimento[cite: 4]</h3>
+                                <p class="text-[11px] text-slate-500 font-semibold uppercase tracking-wider">Segunda a Sexta • 08:00 às 17:00[cite: 4]</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LADO DIREITO -->
+                    <div class="lg:col-span-7 bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
+                        <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center text-xl mb-4 border border-blue-100">
+                            <i class="fa-regular fa-envelope"></i>
+                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 mb-5">Envie uma solicitação por e-mail[cite: 4]</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-700 mb-1 uppercase tracking-wider">Seu Nome[cite: 4]</label>
+                                <input type="text" id="suporte-nome" value="Renan Brumatti" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 text-slate-500 rounded-lg text-xs font-semibold outline-none cursor-not-allowed">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-700 mb-1 uppercase tracking-wider">E-mail[cite: 4]</label>
+                                <input type="email" id="suporte-email" value="renan@infinity.com" readonly class="w-full p-2.5 bg-slate-100 border border-slate-200 text-slate-500 rounded-lg text-xs font-semibold outline-none cursor-not-allowed">
+                            </div>
+                        </div>
+
+                        <div class="flex-grow flex flex-col mb-5">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1 uppercase tracking-wider">Assunto / Mensagem[cite: 4]</label>
+                            <textarea id="suporte-mensagem" class="w-full flex-grow p-3 bg-slate-50 border border-slate-300 text-slate-900 rounded-lg text-xs font-semibold outline-none focus:border-blue-500 focus:bg-white resize-none min-h-[140px] transition-colors" placeholder="Descreva detalhadamente o que está acontecendo...[cite: 4]"></textarea>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button onclick="enviarSolicitacaoEmail()" class="bg-blue-600 hover:bg-blue-500 text-white font-semibold py-2.5 px-6 rounded-lg transition-colors shadow-sm text-xs flex items-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i> Enviar Solicitação[cite: 4]
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // ================= CONEXÃO SUPABASE =================
+        const supabaseUrl = 'https://sqotdkmjebicciatznsv.supabase.co';
+        const supabaseKey = 'sb_publishable_8aOvUrsLvBlf9KIqsL2iyw_eqPn0_a1';
+        const dbSupabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        function mudarTela(telaAlvo) {
+            if(telaAlvo === 'cadastro-empresa') { window.location.href = "03 - CADASTRO2.0.HTML"; return; }
+        }
+
+        // ================= AÇÕES DO SUPORTE (COM SALVAMENTO NA NUVEM) =================
+        async function enviarSolicitacaoEmail() {
+            const nome = document.getElementById('suporte-nome').value;
+            const email = document.getElementById('suporte-email').value;
+            const mensagem = document.getElementById('suporte-mensagem').value.trim();
+            
+            if(!mensagem) {
+                return alert("Por favor, descreva o problema antes de enviar.");[cite: 4]
+            }
+
+            const btn = event.currentTarget;
+            btn.disabled = true;
+            let textoOriginal = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...';
+
+            // Salva o chamado na tabela 'suporte_chamados' no Supabase
+            const { error } = await dbSupabase
+                .from('suporte_chamados')
+                .insert([{ nome, email, mensagem }]);
+
+            btn.disabled = false;
+            btn.innerHTML = textoOriginal;
+
+            if (error) {
+                alert("Erro ao enviar solicitação: " + error.message);
+                return;
+            }
+
+            alert(`Sucesso! Sua solicitação foi registrada na nuvem com sucesso.\n\nNossa equipe técnica enviará o retorno diretamente para o e-mail: ${email}`);[cite: 4]
+            document.getElementById('suporte-mensagem').value = '';
+        }
+    </script>
+</body>
+</html>
